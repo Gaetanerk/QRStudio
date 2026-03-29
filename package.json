@@ -11,10 +11,11 @@
     "productName": "QR Studio By Gaetan",
     "win": {
       "target": "nsis",
-      "icon": "icon.ico"
+      "icon": "ico.ico"
     },
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "ico.icns"
     },
     "nsis": {
       "oneClick": false,
