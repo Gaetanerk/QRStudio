@@ -13,6 +13,9 @@
       "target": "nsis",
       "icon": "icon.ico"
     },
+    "mac": {
+      "target": "dmg"
+    },
     "nsis": {
       "oneClick": false,
       "createDesktopShortcut": true
