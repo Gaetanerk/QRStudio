@@ -1,6 +1,6 @@
 {
   "name": "qr-studio-by-gaetan",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -9,6 +9,13 @@
   "build": {
     "appId": "QR Studio By Gaetan",
     "productName": "QR Studio By Gaetan",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Gaetanerk",
+        "repo": "QRStudio"
+      }
+    ],
     "win": {
       "target": "nsis",
       "icon": "ico.ico"
@@ -25,5 +32,8 @@
   "devDependencies": {
     "electron": "^41.0.4",
     "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3"
   }
 }
