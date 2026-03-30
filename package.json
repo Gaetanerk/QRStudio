@@ -1,13 +1,13 @@
 {
   "name": "qr-studio-by-gaetan",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder"
   },
   "build": {
-    "appId": "QR Studio By Gaetan",
+    "appId": "com.qrstudio.gaetan",
     "productName": "QR Studio By Gaetan",
     "publish": [
       {
@@ -34,6 +34,7 @@
     "electron-builder": "^26.8.1"
   },
   "dependencies": {
+    "electron-log": "^5.4.3",
     "electron-updater": "^6.8.3"
   }
 }
