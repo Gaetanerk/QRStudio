@@ -10,7 +10,6 @@ let logoPosX = 0;
 let logoPosY = 0;
 
 let qrStyled = null;
-
 let logoBase64 = null;
 
 // =======================
@@ -23,13 +22,10 @@ mode.addEventListener("change", () => {
   if (mode.value === "url") {
     urlBlock.classList.remove("urlBlockHidden");
     urlBlock.classList.add("urlBlock");
-    wifiBlock.classList.remove("wifiBlock");
     wifiBlock.classList.add("wifiBlockHidden");
   } else {
-    urlBlock.classList.remove("urlBlock");
     urlBlock.classList.add("urlBlockHidden");
     wifiBlock.classList.remove("wifiBlockHidden");
-    wifiBlock.classList.add("wifiBlock");
   }
 
   generate();
@@ -39,7 +35,7 @@ mode.addEventListener("change", () => {
 // EVENTS
 // =======================
 [urlInput, color, bgColor].forEach((el) =>
-  el.addEventListener("input", generate),
+  el.addEventListener("input", generate)
 );
 
 document.getElementById("ssid").addEventListener("input", generate);
@@ -133,33 +129,23 @@ function removeWhiteBackground(image) {
     const g = data[i + 1];
     const b = data[i + 2];
 
-    return (
-      r > 200 &&
-      g > 200 &&
-      b > 200 &&
-      Math.abs(r - g) < 20 &&
-      Math.abs(r - b) < 20
-    );
+    return r > 200 && g > 200 && b > 200;
   }
 
   for (let x = 0; x < width; x++) {
-    stack.push([x, 0]);
-    stack.push([x, height - 1]);
+    stack.push([x, 0], [x, height - 1]);
   }
   for (let y = 0; y < height; y++) {
-    stack.push([0, y]);
-    stack.push([width - 1, y]);
+    stack.push([0, y], [width - 1, y]);
   }
 
   while (stack.length) {
     const [x, y] = stack.pop();
     const idx = y * width + x;
-
     if (visited[idx]) continue;
     visited[idx] = 1;
 
     const i = idx * 4;
-
     if (!isBg(i)) continue;
 
     data[i + 3] = 0;
@@ -174,17 +160,17 @@ function removeWhiteBackground(image) {
   return temp;
 }
 
+// =======================
+// DRAW LOGO
+// =======================
 function drawLogo(ctx, img, size) {
   const ratio = img.width / img.height;
 
   let width = (logoSize / 100) * size;
   let height = width;
 
-  if (ratio > 1) {
-    height = width / ratio;
-  } else {
-    width = height * ratio;
-  }
+  if (ratio > 1) height = width / ratio;
+  else width = height * ratio;
 
   const x = size / 2 - width / 2 + (logoPosX / 100) * size;
   const y = size / 2 - height / 2 + (logoPosY / 100) * size;
@@ -196,7 +182,6 @@ function getProcessedLogoBase64() {
   if (!logoImage) return null;
 
   const processed = removeWhiteBackground(logoImage);
-
   const c = document.createElement("canvas");
   c.width = processed.width;
   c.height = processed.height;
@@ -225,12 +210,12 @@ function getValue() {
 }
 
 // =======================
-// GENERATE
+// GENERATE PREVIEW
 // =======================
 function generate() {
   const value = getValue();
-
   const ctx = canvas.getContext("2d");
+
   canvas.width = 170;
   canvas.height = 170;
 
@@ -247,8 +232,7 @@ function generate() {
       qrOptions: { errorCorrectionLevel: "H" },
     });
 
-    const temp = document.createElement("div");
-    qrStyled.append(temp);
+    qrStyled.append(document.createElement("div"));
   }
 
   qrStyled.update({
@@ -257,71 +241,23 @@ function generate() {
     cornersSquareOptions: { type: "extra-rounded", color: color.value },
     cornersDotOptions: { type: "dot", color: color.value },
     backgroundOptions: { color: bgColor.value },
-    image: "",
   });
 
   setTimeout(() => {
-    const tempContainer = qrStyled._container;
-    if (!tempContainer) return;
-
-    let generated = tempContainer.querySelector("canvas");
-
-    if (!generated) {
-      const svg = tempContainer.querySelector("svg");
-      if (svg) {
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const img = new Image();
-
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          drawLogoSafe(ctx);
-        };
-
-        img.src = "data:image/svg+xml;base64," + btoa(svgData);
-        return;
-      }
-    }
-
+    const generated = qrStyled._container.querySelector("canvas");
     if (!generated) return;
 
-    function drawLogoSafe(ctx) {
-      if (!logoImage) return;
-
-      const processed = removeWhiteBackground(logoImage);
-
-      const size = canvas.width;
-      const logoPx = (logoSize / 100) * size;
-
-      const x = size / 2 - logoPx / 2 + (logoPosX / 100) * size;
-      const y = size / 2 - logoPx / 2 + (logoPosY / 100) * size;
-
-      drawLogo(ctx, processed, size);
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(generated, 0, 0, canvas.width, canvas.height);
-    drawLogoSafe(ctx);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(generated, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(generated, 0, 0);
 
     if (logoImage) {
       const processed = removeWhiteBackground(logoImage);
-
-      const size = canvas.width;
-      const logoPx = (logoSize / 100) * size;
-
-      const x = size / 2 - logoPx / 2 + (logoPosX / 100) * size;
-      const y = size / 2 - logoPx / 2 + (logoPosY / 100) * size;
-
-      drawLogo(ctx, processed, size);
+      drawLogo(ctx, processed, canvas.width);
     }
   }, 10);
 }
 
 // =======================
-// PNG
+// PNG EXPORT
 // =======================
 document.getElementById("pngBtn").onclick = () => {
   const value = getValue();
@@ -329,83 +265,59 @@ document.getElementById("pngBtn").onclick = () => {
 
   const size = 1000;
 
-  const qrHD = new QRCodeStyling({
+  const qr = new QRCodeStyling({
     width: size,
     height: size,
-    margin: 2,
     data: value,
-    qrOptions: {
-      errorCorrectionLevel: "H",
-    },
-    dotsOptions: {
-      type: "classy-rounded",
-      color: color.value,
-    },
-    cornersSquareOptions: {
-      type: "extra-rounded",
-      color: color.value,
-    },
-    cornersDotOptions: {
-      type: "dot",
-      color: color.value,
-    },
-    backgroundOptions: {
-      color: bgColor.value,
-    },
-    image: "",
+    qrOptions: { errorCorrectionLevel: "H" },
+    dotsOptions: { type: "classy-rounded", color: color.value },
+    cornersSquareOptions: { type: "extra-rounded", color: color.value },
+    cornersDotOptions: { type: "dot", color: color.value },
+    backgroundOptions: { color: bgColor.value },
   });
 
   const temp = document.createElement("div");
-  qrHD.append(temp);
+  qr.append(temp);
 
   setTimeout(() => {
-    let generated = temp.querySelector("canvas");
+    const source = temp.querySelector("canvas");
 
-    if (!generated) {
-      const svg = temp.querySelector("svg");
-      if (svg) {
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const img = new Image();
-
-        img.onload = () => drawHD(img);
-        img.src = "data:image/svg+xml;base64," + btoa(svgData);
-        return;
-      }
-    }
-
-    if (generated) {
-      drawHD(generated);
-    }
-  }, 50);
-
-  function drawHD(source) {
     const finalCanvas = document.createElement("canvas");
     const ctx = finalCanvas.getContext("2d");
+
+    const padding = size * 0.08;
+    const radius = size * 0.08;
 
     finalCanvas.width = size;
     finalCanvas.height = size;
 
-    ctx.drawImage(source, 0, 0, size, size);
+    // fond arrondi
+    ctx.fillStyle = bgColor.value;
+    roundRect(ctx, 0, 0, size, size, radius);
+    ctx.fill();
+
+    const qrSize = size - padding * 2;
+
+    ctx.save();
+    roundRect(ctx, padding, padding, qrSize, qrSize, radius * 0.6);
+    ctx.clip();
+    ctx.drawImage(source, padding, padding, qrSize, qrSize);
+    ctx.restore();
 
     if (logoImage) {
       const processed = removeWhiteBackground(logoImage);
-
-      const logoPx = (logoSize / 100) * size;
-      const x = size / 2 - logoPx / 2 + (logoPosX / 100) * size;
-      const y = size / 2 - logoPx / 2 + (logoPosY / 100) * size;
-
       drawLogo(ctx, processed, size);
     }
 
     const link = document.createElement("a");
-    link.download = "qr-hd.png";
-    link.href = finalCanvas.toDataURL("image/png", 1.0);
+    link.download = "qr.png";
+    link.href = finalCanvas.toDataURL("image/png");
     link.click();
-  }
+  }, 50);
 };
 
 // =======================
-// SVG
+// SVG EXPORT
 // =======================
 document.getElementById("svgBtn").onclick = () => {
   const value = getValue();
@@ -413,77 +325,81 @@ document.getElementById("svgBtn").onclick = () => {
 
   const size = 1000;
 
-  const qrHD = new QRCodeStyling({
+  const qr = new QRCodeStyling({
     width: size,
     height: size,
-    margin: 2,
-    data: value,
     type: "svg",
-    qrOptions: {
-      errorCorrectionLevel: "H",
-    },
-    dotsOptions: {
-      type: "classy-rounded",
-      color: color.value,
-    },
-    cornersSquareOptions: {
-      type: "extra-rounded",
-      color: color.value,
-    },
-    cornersDotOptions: {
-      type: "dot",
-      color: color.value,
-    },
-    backgroundOptions: {
-      color: bgColor.value,
-    },
-    image: "",
-    imageOptions: {
-      margin: 5,
-    },
+    data: value,
+    qrOptions: { errorCorrectionLevel: "H" },
+    dotsOptions: { type: "classy-rounded", color: color.value },
+    cornersSquareOptions: { type: "extra-rounded", color: color.value },
+    cornersDotOptions: { type: "dot", color: color.value },
+    backgroundOptions: { color: bgColor.value },
   });
 
   const temp = document.createElement("div");
-  qrHD.append(temp);
+  qr.append(temp);
 
   setTimeout(() => {
-    const svg = temp.querySelector("svg");
-    if (!svg) return;
+    const originalSvg = temp.querySelector("svg");
+    if (!originalSvg) return;
 
-    if (logoBase64) {
-      const image = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "image",
-      );
+    const padding = size * 0.08;
+    const radius = size * 0.08;
+    const qrSize = size - padding * 2;
 
-      const logoSizePx = size * (logoSize / 100);
-      const x = size / 2 - logoSizePx / 2 + (logoPosX / 100) * size;
-      const y = size / 2 - logoSizePx / 2 + (logoPosY / 100) * size;
+    const finalSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+      
+      <rect width="${size}" height="${size}" rx="${radius}" fill="${bgColor.value}" />
 
-      const cleanLogo = getProcessedLogoBase64();
-      image.setAttributeNS(null, "href", cleanLogo);
-      image.setAttribute("x", x);
-      image.setAttribute("y", y);
-      image.setAttribute("width", logoSizePx);
-      image.setAttribute("height", logoSizePx);
+      <clipPath id="clipQR">
+        <rect x="${padding}" y="${padding}" width="${qrSize}" height="${qrSize}" rx="${radius * 0.6}" />
+      </clipPath>
 
-      svg.appendChild(image);
-    }
+      <g clip-path="url(#clipQR)">
+        <g transform="translate(${padding}, ${padding}) scale(${qrSize / size})">
+          ${originalSvg.innerHTML}
+        </g>
+      </g>
 
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(svg);
+      ${
+        logoBase64
+          ? `<image href="${getProcessedLogoBase64()}" x="${size / 2 - (qrSize * logoSize / 100) / 2}" y="${size / 2 - (qrSize * logoSize / 100) / 2}" width="${qrSize * logoSize / 100}" height="${qrSize * logoSize / 100}" />`
+          : ""
+      }
 
-    const blob = new Blob([source], { type: "image/svg+xml" });
+    </svg>
+    `;
+
+    const blob = new Blob([finalSvg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "qr-hd.svg";
+    a.download = "qr.svg";
     a.click();
 
     URL.revokeObjectURL(url);
   }, 50);
 };
+
+// =======================
+// UTILS
+// =======================
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
 
 // INIT
 generate();
