@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -27,7 +27,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build & Publish
-        run: npx electron-builder --publish=always
+      - name: Build Windows + Publish
+        if: runner.os == 'Windows'
+        run: npx electron-builder --win --x64 --publish=always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Mac + Publish
+        if: runner.os == 'macOS'
+        run: npx electron-builder --mac --publish=always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
