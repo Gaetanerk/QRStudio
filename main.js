@@ -8,7 +8,7 @@ function createWindow() {
     width: 600,
     height: 1100,
     icon: "ico.ico",
-    title: "QR STUDIO by Gaëtan v1.1.0",
+    title: "QR STUDIO by Gaëtan v1.1.2",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
