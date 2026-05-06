@@ -15,31 +15,91 @@ let logoBase64 = null;
 // =======================
 // MODE SWITCH
 // =======================
-mode.addEventListener("change", () => {
+/*mode.addEventListener("change", () => {
   const urlBlock = document.getElementById("urlBlock");
   const wifiBlock = document.getElementById("wifiBlock");
+  const mapsBlock = document.getElementById("mapsBlock");
+
+  urlBlock.classList.add("urlBlockHidden");
+  wifiBlock.classList.add("wifiBlockHidden");
+  mapsBlock.classList.add("wifiBlockHidden");
 
   if (mode.value === "url") {
     urlBlock.classList.remove("urlBlockHidden");
-    urlBlock.classList.add("urlBlock");
-    wifiBlock.classList.add("wifiBlockHidden");
-  } else {
-    urlBlock.classList.add("urlBlockHidden");
+  }
+
+  if (mode.value === "wifi") {
     wifiBlock.classList.remove("wifiBlockHidden");
   }
 
+  if (mode.value === "maps") {
+    mapsBlock.classList.remove("wifiBlockHidden");
+  }
+
   generate();
-});
+});*/
+
+mode.addEventListener("change", updateModeVisibility);
+
+function updateModeVisibility() {
+
+  const currentMode = mode.value;
+
+  const urlBlock =
+    document.getElementById("urlBlock");
+
+  const wifiBlock =
+    document.getElementById("wifiBlock");
+
+  const mapsBlock =
+    document.getElementById("mapsBlock");
+
+  // RESET
+  urlBlock.classList.add("urlBlockHidden");
+  wifiBlock.classList.add("wifiBlockHidden");
+  mapsBlock.classList.add("wifiBlockHidden");
+
+  // URL
+  if (currentMode === "url") {
+    urlBlock.classList.remove("urlBlockHidden");
+  }
+
+  // WIFI
+  if (currentMode === "wifi") {
+    wifiBlock.classList.remove("wifiBlockHidden");
+  }
+
+  // MAPS
+  if (currentMode === "maps") {
+    mapsBlock.classList.remove("wifiBlockHidden");
+  }
+
+  generate();
+}
 
 // =======================
 // EVENTS
 // =======================
 [urlInput, color, bgColor].forEach((el) =>
-  el.addEventListener("input", generate)
+  el.addEventListener("input", generate),
 );
 
 document.getElementById("ssid").addEventListener("input", generate);
 document.getElementById("password").addEventListener("input", generate);
+document.getElementById("mapsAddress").addEventListener("input", generate);
+document.getElementById("latitude").addEventListener("input", generate);
+document.getElementById("longitude").addEventListener("input", generate);
+document.getElementById("mapsType").addEventListener("change", () => {
+  const type = document.getElementById("mapsType").value;
+
+  document.getElementById("addressBlock").style.display =
+    type === "address" ? "block" : "none";
+
+  document.getElementById("coordsBlock").style.display =
+    type === "coords" ? "block" : "none";
+
+  generate();
+});
 
 // =======================
 // LOGO
@@ -201,6 +261,32 @@ function getValue() {
     const password = document.getElementById("password").value;
     if (!ssid) return null;
     return `WIFI:T:WPA;S:${ssid};P:${password};;`;
+  }
+
+  if (mode.value === "maps") {
+    const type = document.getElementById("mapsType").value;
+
+    // ===================
+    // ADRESSE
+    // ===================
+    if (type === "address") {
+      const address = document.getElementById("mapsAddress").value;
+
+      if (!address) return null;
+
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+    }
+
+    // ===================
+    // COORDONNÉES GPS
+    // ===================
+    const lat = document.getElementById("latitude").value;
+
+    const lng = document.getElementById("longitude").value;
+
+    if (!lat || !lng) return null;
+
+    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   }
 
   let url = urlInput.value;
@@ -365,7 +451,7 @@ document.getElementById("svgBtn").onclick = () => {
 
       ${
         logoBase64
-          ? `<image href="${getProcessedLogoBase64()}" x="${size / 2 - (qrSize * logoSize / 100) / 2}" y="${size / 2 - (qrSize * logoSize / 100) / 2}" width="${qrSize * logoSize / 100}" height="${qrSize * logoSize / 100}" />`
+          ? `<image href="${getProcessedLogoBase64()}" x="${size / 2 - (qrSize * logoSize) / 100 / 2}" y="${size / 2 - (qrSize * logoSize) / 100 / 2}" width="${(qrSize * logoSize) / 100}" height="${(qrSize * logoSize) / 100}" />`
           : ""
       }
 
@@ -401,5 +487,5 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
-// INIT
+updateModeVisibility();
 generate();

@@ -17,7 +17,7 @@ autoUpdater.setFeedURL({
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 600,
+    width: 1200,
     height: 1100,
     icon: "ico.ico",
     title: `QR STUDIO by Gaëtan v${app.getVersion()}`,
@@ -28,6 +28,7 @@ function createWindow() {
   });
 
   Menu.setApplicationMenu(null);
+  mainWindow.maximize();
   mainWindow.loadFile("index.html");
 }
 
@@ -37,7 +38,6 @@ app.whenReady().then(() => {
   // 🔥 CHECK UPDATE
   autoUpdater.checkForUpdatesAndNotify();
 });
-
 
 // =======================
 // EVENTS DEBUG + UI
