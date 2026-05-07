@@ -1,10 +1,4 @@
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  dialog,
-  shell,
-} = require("electron");
+const { app, BrowserWindow, Menu, dialog, shell } = require("electron");
 
 const { autoUpdater } = require("electron-updater");
 const log = require("electron-log");
@@ -97,52 +91,44 @@ autoUpdater.on("download-progress", (progressObj) => {
   }
 });
 
-autoUpdater.on("update-downloaded", () => {
+autoUpdater.on("update-downloaded", (info) => {
   console.log("🎉 Update downloaded");
 
-  if (mainWindow) {
-    mainWindow.setProgressBar(-1);
+  if (process.platform === "darwin") {
+    dialog
+      .showMessageBox({
+        type: "info",
+        title: "Nouvelle version disponible",
+        message: `La version ${info.version} est disponible.\n\nTélécharger maintenant ?`,
+        buttons: ["Télécharger", "Plus tard"],
+        defaultId: 0,
+        cancelId: 1,
+      })
+      .then((result) => {
+        if (result.response === 0) {
+          shell.openExternal(
+            "https://github.com/Gaetanerk/QRStudio/releases/latest",
+          );
+        }
+      });
+
+    return;
   }
 
+  // WINDOWS
   dialog
     .showMessageBox({
       type: "info",
       title: "Installer la mise à jour",
-
       message:
-        process.platform === "darwin"
-          ? "La mise à jour est téléchargée.\n\nOuvrir la page de téléchargement ?"
-          : "La mise à jour a été téléchargée.\n\nVoulez-vous redémarrer l'application maintenant ?",
-
-      buttons:
-        process.platform === "darwin"
-          ? ["Télécharger", "Plus tard"]
-          : ["Redémarrer", "Plus tard"],
-
+        "La mise à jour a été téléchargée.\n\nVoulez-vous redémarrer l'application maintenant ?",
+      buttons: ["Redémarrer", "Plus tard"],
       defaultId: 0,
       cancelId: 1,
     })
     .then((result) => {
-      // =======================
-      // MACOS
-      // =======================
-
-      if (process.platform === "darwin") {
-        if (result.response === 0) {
-          shell.openExternal(
-            "https://github.com/Gaetanerk/QRStudio/releases/latest"
-          );
-        }
-      }
-
-      // =======================
-      // WINDOWS
-      // =======================
-
-      else {
-        if (result.response === 0) {
-          autoUpdater.quitAndInstall();
-        }
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall();
       }
     });
 });
