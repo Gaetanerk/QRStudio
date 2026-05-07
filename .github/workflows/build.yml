@@ -41,7 +41,7 @@ jobs:
       # =========================
       - name: Build Mac
         if: runner.os == 'macOS'
-        run: npx electron-builder --mac
+        run: npx electron-builder --mac --publish=never
 
       # =========================
       # UPLOAD MAC FILES
