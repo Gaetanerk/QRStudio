@@ -1,4 +1,11 @@
-const { app, BrowserWindow, Menu, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  dialog,
+  shell,
+} = require("electron");
+
 const { autoUpdater } = require("electron-updater");
 const log = require("electron-log");
 
@@ -101,21 +108,47 @@ autoUpdater.on("update-downloaded", () => {
     .showMessageBox({
       type: "info",
       title: "Installer la mise à jour",
+
       message:
-        "La mise à jour a été téléchargée.\n\nVoulez-vous redémarrer l'application maintenant ?",
-      buttons: ["Redémarrer", "Plus tard"],
+        process.platform === "darwin"
+          ? "La mise à jour est téléchargée.\n\nOuvrir la page de téléchargement ?"
+          : "La mise à jour a été téléchargée.\n\nVoulez-vous redémarrer l'application maintenant ?",
+
+      buttons:
+        process.platform === "darwin"
+          ? ["Télécharger", "Plus tard"]
+          : ["Redémarrer", "Plus tard"],
+
       defaultId: 0,
       cancelId: 1,
     })
     .then((result) => {
-      if (result.response === 0) {
-        autoUpdater.quitAndInstall();
+      // =======================
+      // MACOS
+      // =======================
+
+      if (process.platform === "darwin") {
+        if (result.response === 0) {
+          shell.openExternal(
+            "https://github.com/Gaetanerk/QRStudio/releases/latest"
+          );
+        }
+      }
+
+      // =======================
+      // WINDOWS
+      // =======================
+
+      else {
+        if (result.response === 0) {
+          autoUpdater.quitAndInstall();
+        }
       }
     });
 });
 
 // =======================
-// MACOS
+// MACOS EVENTS
 // =======================
 
 app.on("window-all-closed", () => {
