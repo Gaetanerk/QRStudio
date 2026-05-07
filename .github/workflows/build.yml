@@ -27,32 +27,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # =========================
       # WINDOWS
-      # =========================
       - name: Build Windows + Publish
         if: runner.os == 'Windows'
         run: npx electron-builder --win --x64 --publish=always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # =========================
       # MAC
-      # =========================
-      - name: Build Mac
+      - name: Build Mac + Publish
         if: runner.os == 'macOS'
-        run: npx electron-builder --mac --publish=never
-
-      # =========================
-      # UPLOAD MAC FILES
-      # =========================
-      - name: Upload Mac Artifacts
-        if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-build
-          path: |
-            dist/*.dmg
-            dist/*.zip
-            dist/latest-mac.yml
-            dist/*.blockmap
+        run: npx electron-builder --mac --publish=always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
