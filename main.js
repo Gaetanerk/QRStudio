@@ -4,23 +4,26 @@ const log = require("electron-log");
 
 let mainWindow;
 
-// 🔥 LOGS (indispensable)
+// =======================
+// LOGGER
+// =======================
+
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
 
-// 🔥 CONFIG GITHUB (IMPORTANT)
-autoUpdater.setFeedURL({
-  provider: "github",
-  owner: "Gaetanerk",
-  repo: "QRStudio",
-});
+// =======================
+// CREATE WINDOW
+// =======================
 
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 1100,
+
     icon: "ico.ico",
+
     title: `QR STUDIO by Gaëtan v${app.getVersion()}`,
+
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -28,32 +31,38 @@ function createWindow() {
   });
 
   Menu.setApplicationMenu(null);
+
   mainWindow.maximize();
+
   mainWindow.loadFile("index.html");
 }
+
+// =======================
+// APP READY
+// =======================
 
 app.whenReady().then(() => {
   createWindow();
 
-  // 🔥 CHECK UPDATE
+  // CHECK FOR UPDATES
   autoUpdater.checkForUpdatesAndNotify();
 });
 
 // =======================
-// EVENTS DEBUG + UI
+// AUTO UPDATER EVENTS
 // =======================
 
 autoUpdater.on("checking-for-update", () => {
   console.log("🔍 Checking for update...");
 });
 
-autoUpdater.on("update-available", () => {
-  console.log("✅ Update available");
+autoUpdater.on("update-available", (info) => {
+  console.log("✅ Update available:", info.version);
 
   dialog.showMessageBox({
     type: "info",
     title: "Mise à jour disponible",
-    message: "Une nouvelle version est disponible. Téléchargement...",
+    message: `Une nouvelle version (${info.version}) est disponible.\n\nTéléchargement en cours...`,
   });
 });
 
@@ -62,26 +71,61 @@ autoUpdater.on("update-not-available", () => {
 });
 
 autoUpdater.on("error", (err) => {
-  console.log("🔥 Error:", err);
+  console.log("🔥 Update error:", err);
+
+  dialog.showMessageBox({
+    type: "error",
+    title: "Erreur mise à jour",
+    message: err == null ? "Erreur inconnue" : err.toString(),
+  });
 });
 
 autoUpdater.on("download-progress", (progressObj) => {
-  console.log(`⬇️ Download: ${Math.round(progressObj.percent)}%`);
+  let percent = Math.round(progressObj.percent);
+
+  console.log(`⬇️ Download progress: ${percent}%`);
+
+  if (mainWindow) {
+    mainWindow.setProgressBar(progressObj.percent / 100);
+  }
 });
 
 autoUpdater.on("update-downloaded", () => {
-  console.log("🎉 Update ready");
+  console.log("🎉 Update downloaded");
+
+  if (mainWindow) {
+    mainWindow.setProgressBar(-1);
+  }
 
   dialog
     .showMessageBox({
       type: "info",
       title: "Installer la mise à jour",
-      message: "La mise à jour est prête. Redémarrer maintenant ?",
-      buttons: ["Oui", "Plus tard"],
+      message:
+        "La mise à jour a été téléchargée.\n\nVoulez-vous redémarrer l'application maintenant ?",
+      buttons: ["Redémarrer", "Plus tard"],
+      defaultId: 0,
+      cancelId: 1,
     })
     .then((result) => {
       if (result.response === 0) {
         autoUpdater.quitAndInstall();
       }
     });
+});
+
+// =======================
+// MACOS
+// =======================
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });

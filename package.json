@@ -1,6 +1,6 @@
 {
   "name": "qr-studio-by-gaetan",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -8,7 +8,8 @@
   },
   "build": {
     "appId": "com.qrstudio.gaetan",
-    "productName": "QR Studio By Gaetan",
+    "productName": "QR-Studio-By-Gaetan",
+    "artifactName": "${productName}-Setup-${version}.${ext}",
     "publish": [
       {
         "provider": "github",
@@ -21,8 +22,12 @@
       "icon": "ico.ico"
     },
     "mac": {
-      "target": "dmg",
-      "icon": "ico.icns"
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "ico.icns",
+      "category": "public.app-category.utilities"
     },
     "nsis": {
       "oneClick": false,
