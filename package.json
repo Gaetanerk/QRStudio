@@ -9,7 +9,7 @@
   "build": {
     "appId": "com.qrstudio.gaetan",
     "productName": "QR-Studio-By-Gaetan",
-    "artifactName": "${productName}-Setup-${version}.${ext}",
+    "artifactName": "${productName}.${ext}",
     "publish": [
       {
         "provider": "github",

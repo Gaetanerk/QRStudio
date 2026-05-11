@@ -107,7 +107,7 @@ autoUpdater.on("update-downloaded", (info) => {
       .then((result) => {
         if (result.response === 0) {
           shell.openExternal(
-            "https://github.com/Gaetanerk/QRStudio/releases/latest",
+            "https://github.com/Gaetanerk/QRStudio/releases/latest/download/QR-Studio-By-Gaetan-Setup.dmg",
           );
         }
       });

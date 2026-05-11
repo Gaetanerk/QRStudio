@@ -451,14 +451,14 @@
       canvas {
         position: relative;
 
-        width: 320px;
-        height: 320px;
+        width: 100%;
+        height: 100%;
 
-        border-radius: 28px;
+        border-radius: 40px;
 
         background: white;
 
-        padding: 20px;
+        padding: 35px;
 
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
       }
@@ -581,10 +581,10 @@
           <div class="sliderLabel">
             <span>Taille logo</span>
 
-            <span id="logoSizeValue"> 40 </span>
+            <span id="logoSizeValue"> 25 </span>
           </div>
 
-          <input type="range" id="logoSize" min="20" max="100" value="40" />
+          <input type="range" id="logoSize" min="20" max="100" value="25" />
         </div>
 
         <!-- POS X -->
@@ -607,6 +607,20 @@
           </div>
 
           <input type="range" id="logoPosY" min="-100" max="100" value="0" />
+        </div>
+
+        <!-- STYLE QR-->
+        <div class="section">
+          <label>Style QR</label>
+
+          <select id="qrStyle">
+            <option value="square">Classic</option>
+            <option value="rounded">Rounded</option>
+            <option value="dots">Dots</option>
+            <option value="extra-rounded">Extra Rounded</option>
+            <option value="classy">Elegant</option>
+            <option value="classy-rounded">Classy Rounded</option>
+          </select>
         </div>
       </aside>
 
